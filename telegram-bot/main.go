@@ -7,6 +7,8 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+
+	route_v1 "telegram-bot/routes/v1"
 )
 
 type Update struct {
@@ -48,7 +50,7 @@ func main() {
 	app := gin.Default()
 
 	opts := gotgbot.BotOpts{}
-	bot, err = gotgbot.NewBot(viper.GetString("BOT_TOKEN"), &opts)
+	bot, err = gotgbot.NewBot(viper.GetString("TELEGRAM_BOT_TOKEN"), &opts)
 
 	if err != nil {
 		panic(err)
@@ -63,6 +65,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	api := app.Group("/api")
+	route_v1.Route(&gin.Context{}, api)
 
 	app.POST("/webhook", UpdatesHandler)
 	app.POST("/send", SendUpdatesHandler)
