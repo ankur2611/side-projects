@@ -10,18 +10,18 @@ import (
 )
 
 type TelegramHandler struct {
-	sc services.TelegramService
+	ts services.TelegramService
 }
 
 func NewTelegramHandler(ctx *gin.Context) TelegramHandler {
 	return TelegramHandler{
-		sc: services.NewTelegramService(ctx),
+		ts: services.NewTelegramService(ctx),
 	}
 }
 
 func (t TelegramHandler) RegisterWebhook(ctx *gin.Context) {
 
-	response, err := t.sc.RegisterWebhook(ctx)
+	response, err := t.ts.RegisterWebhook(ctx)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -39,7 +39,7 @@ func (t TelegramHandler) CommandsHandler(c *gin.Context) {
 		return
 	}
 
-	_, err := t.sc.Commands(c, data)
+	_, err := t.ts.Commands(c, data)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
