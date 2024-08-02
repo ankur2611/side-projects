@@ -1,6 +1,9 @@
 package utils
 
-import "reflect"
+import (
+	"reflect"
+	"strings"
+)
 
 func ExecuteMethods(obj interface{}) {
 	// Calling all the struct methods
@@ -9,4 +12,8 @@ func ExecuteMethods(obj interface{}) {
 		method := structValue.Method(i)
 		method.Call(nil)
 	}
+}
+
+func IsEmpty(s string) bool {
+	return len(strings.TrimSpace(s)) == 0
 }

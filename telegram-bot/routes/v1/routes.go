@@ -27,3 +27,9 @@ func (r route) GiphyRoutes() {
 	r.routeGroup.GET("/search-gifs", giphyHandler.SearchGifs)
 	r.routeGroup.GET("/search-stickers", giphyHandler.SearchStickers)
 }
+
+func (r route) TelegramRoutes() {
+	telegramHandler := handlers_v1.NewTelegramHandler(r.ctx)
+	r.routeGroup.POST("/webhook", telegramHandler.RegisterWebhook)
+	r.routeGroup.POST("/commands", telegramHandler.CommandsHandler)
+}
