@@ -1,7 +1,6 @@
 package handlers_v1
 
 import (
-	"fmt"
 	"net/http"
 	"telegram-bot/dto"
 	"telegram-bot/services"
@@ -60,9 +59,4 @@ func (t TelegramHandler) SendUpdatesHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": "message sent"})
-}
-
-func handleTextMessage(message dto.Message) {
-	fmt.Printf("Text message from %s: %s\n", message.From.Username, message.Text)
-	// Process the message as needed
 }
