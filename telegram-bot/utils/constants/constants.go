@@ -7,3 +7,5 @@ const (
 	GIPHY_RANDOM_ID = ""
 	GIPHY_BUNDLE    = ""
 )
+
+var OffensiveWords = []string{"fuck", "dick", "pussy"}

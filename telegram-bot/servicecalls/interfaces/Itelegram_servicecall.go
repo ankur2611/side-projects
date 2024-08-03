@@ -8,6 +8,9 @@ import (
 
 type ITelegramServiceCall interface {
 	SetWebhook(ctx *gin.Context) (dto.WebHookResponse, error)
-	SendMessage(ctx *gin.Context, chatID, text string) (dto.TgResponse, error)
-	SendSticker(ctx *gin.Context, chatID, mediaURL string) (dto.TgResponse, error)
+	SendMessage(ctx *gin.Context, chatID int64, text string) (dto.TgResponse, error)
+	SendSticker(ctx *gin.Context, chatID int64, mediaURL string) (dto.TgResponse, error)
+	BanUser(ctx *gin.Context, chatID, userID int64) (dto.TgResponse, error)
+	UnBanUser(ctx *gin.Context, chatID, userID int64) (dto.TgResponse, error)
+	RestrictUser(ctx *gin.Context, chatID, userID int64) (dto.TgResponse, error)
 }

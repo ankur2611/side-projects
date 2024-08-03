@@ -4,12 +4,13 @@ import (
 	"net/http"
 	"telegram-bot/dto"
 	"telegram-bot/services"
+	"telegram-bot/services/interfaces"
 
 	"github.com/gin-gonic/gin"
 )
 
 type TelegramHandler struct {
-	ts services.TelegramService
+	ts interfaces.ITelegramService
 }
 
 func NewTelegramHandler(ctx *gin.Context) TelegramHandler {
@@ -46,17 +47,4 @@ func (t TelegramHandler) CommandsHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
-}
-
-func (t TelegramHandler) SendUpdatesHandler(c *gin.Context) {
-	var req struct {
-		ChatID  int64  `json:"chat_id"`
-		Message string `json:"message"`
-	}
-	if err := c.BindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"status": "message sent"})
 }

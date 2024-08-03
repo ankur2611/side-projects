@@ -2,7 +2,7 @@ package interfaces
 
 import "github.com/gin-gonic/gin"
 
-type IGiphy interface {
+type IGiphyService interface {
 	GetTrendingGifs(ctx *gin.Context) (string, error)
 	GetTrendingStickers(ctx *gin.Context) (string, error)
 	SearchGifs(ctx *gin.Context, search, language string) ([]string, error)

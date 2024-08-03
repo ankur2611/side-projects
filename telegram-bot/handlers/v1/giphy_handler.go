@@ -2,12 +2,13 @@ package handlers_v1
 
 import (
 	"telegram-bot/services"
+	"telegram-bot/services/interfaces"
 
 	"github.com/gin-gonic/gin"
 )
 
 type GiphyHandler struct {
-	gs services.GiphyService
+	gs interfaces.IGiphyService
 }
 
 func NewGiphyHandler(ctx *gin.Context) GiphyHandler {

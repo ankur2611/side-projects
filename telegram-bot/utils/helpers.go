@@ -3,6 +3,7 @@ package utils
 import (
 	"reflect"
 	"strings"
+	"time"
 )
 
 func ExecuteMethods(obj interface{}) {
@@ -31,4 +32,8 @@ func ConstructFullName(firstName, lastName, userName string) string {
 		name += " (@" + userName + ")"
 	}
 	return name
+}
+
+func GetUnixTime(currentTime time.Time) int64 {
+	return currentTime.Unix()
 }

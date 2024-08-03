@@ -3,9 +3,12 @@ package services
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 	"telegram-bot/dto"
 	"telegram-bot/servicecalls"
+	"telegram-bot/servicecalls/interfaces"
 	"telegram-bot/utils"
+	"telegram-bot/utils/constants"
 	"telegram-bot/utils/logger"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +17,7 @@ import (
 
 // TelegramService struct defines the TelegramService struct type with tsc and logger fields
 type TelegramService struct {
-	tsc    servicecalls.TelegramServiceCall
+	tsc    interfaces.ITelegramServiceCall
 	gs     GiphyService
 	logger *logrus.Logger
 }
@@ -44,14 +47,19 @@ func (t TelegramService) RegisterWebhook(ctx *gin.Context) (string, error) {
 func (t TelegramService) Commands(ctx *gin.Context, data dto.CommandsRequest) (string, error) {
 
 	chatID := data.Message.Chat.ID
+	userID := data.Message.From.ID
 	message := data.Message.Text
-	t.logger.Debug("Data Received from TG Server, chatID: ", data.Message.Chat.ID, "message: ", data.Message.Text)
+	t.logger.Debug("Data Received from TG Server, chatID: ", data.Message.Chat.ID, " message: ", data.Message.Text)
 
 	switch message {
 	case "/desc":
 		msg := groupDescription()
 		if _, err := t.tsc.SendMessage(ctx, chatID, msg); err != nil {
 			t.logger.Error("error sending group description: ", err)
+		}
+	case "/restrict":
+		if _, err := t.tsc.RestrictUser(ctx, chatID, userID); err != nil {
+			t.logger.Error("error restricting user: ", err)
 		}
 	}
 
@@ -82,7 +90,7 @@ func (t TelegramService) Commands(ctx *gin.Context, data dto.CommandsRequest) (s
 	}
 
 	// Handle members leaving
-	if data.Message.LeftChatMember != nil {
+	if data.Message.LeftChatMember != (dto.User{}) {
 
 		// Construct fullname & username of the new member
 		fullName := utils.ConstructFullName(data.Message.LeftChatMember.FirstName,
@@ -97,10 +105,19 @@ func (t TelegramService) Commands(ctx *gin.Context, data dto.CommandsRequest) (s
 		}
 	}
 
+	// Ban user for offensive language
+	for _, word := range constants.OffensiveWords {
+		if strings.Contains(strings.ToLower(message), word) {
+			if _, err := t.tsc.BanUser(ctx, chatID, userID); err != nil {
+				t.logger.Error("error banning user: ", err)
+			}
+		}
+	}
+
 	return "", nil
 }
 
 // groupDescription returns the description of the group
 func groupDescription() string {
-	return "This is a simple telegram bot"
+	return "This is a sample telegram bot"
 }
