@@ -2,93 +2,105 @@ package services
 
 import (
 	"fmt"
+	"math/rand"
 	"telegram-bot/dto"
 	"telegram-bot/servicecalls"
 	"telegram-bot/utils"
+	"telegram-bot/utils/logger"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
+// TelegramService struct defines the TelegramService struct type with tsc and logger fields
 type TelegramService struct {
-	tsc servicecalls.TelegramServiceCall
+	tsc    servicecalls.TelegramServiceCall
+	gs     GiphyService
+	logger *logrus.Logger
 }
 
+// NewTelegramService creates a new instance of TelegramService
 func NewTelegramService(ctx *gin.Context) TelegramService {
 	return TelegramService{
-		tsc: servicecalls.NewTelegramServiceCall(ctx),
+		tsc:    servicecalls.NewTelegramServiceCall(ctx),
+		gs:     NewGiphyService(ctx),
+		logger: logger.GetLogger(),
 	}
 }
 
+// RegisterWebhook registers the webhook for the bot to receive updates from Telegram
 func (t TelegramService) RegisterWebhook(ctx *gin.Context) (string, error) {
 	data, err := t.tsc.SetWebhook(ctx)
 
 	if err != nil {
+		t.logger.Error("error setting webhook: ", err)
 		return "", fmt.Errorf("error setting webhook: %s", err)
 	}
 
 	return data.Description, nil
 }
 
+// Commands handles the commands received from the bot
 func (t TelegramService) Commands(ctx *gin.Context, data dto.CommandsRequest) (string, error) {
 
 	chatID := data.Message.Chat.ID
-	fmt.Println(chatID)
+	message := data.Message.Text
+	t.logger.Debug("Data Received from TG Server, chatID: ", data.Message.Chat.ID, "message: ", data.Message.Text)
 
-	// Greet new chat members
+	switch message {
+	case "/desc":
+		msg := groupDescription()
+		if _, err := t.tsc.SendMessage(ctx, chatID, msg); err != nil {
+			t.logger.Error("error sending group description: ", err)
+		}
+	}
+
+	// Greet new chat members with text msg & sticker
 	for _, newMember := range data.Message.NewChatMembers {
 
-		fullName := t.constructFullName(newMember.FirstName, newMember.LastName, newMember.Username)
+		// Construct fullname & username of the new member
+		fullName := utils.ConstructFullName(newMember.FirstName, newMember.LastName, newMember.Username)
 		greetingMsg := fmt.Sprintf("Welcome, %s !", fullName)
 
-		_, err := t.tsc.SendMessage(ctx, chatID, greetingMsg)
-		if err != nil {
-			return greetingMsg, fmt.Errorf("error sending greeting message: %s", err)
+		// Send a greeting message
+		if _, err := t.tsc.SendMessage(ctx, chatID, greetingMsg); err != nil {
+			t.logger.Error("error sending greeting message: ", err)
 		}
-		_, err = t.tsc.SendSticker(ctx, chatID, "https://media.giphy.com/media/3o7TKz9bX9v9Kz2wJi/giphy.gif")
+
+		// Fetch a random sticker from Giphy.com
+		stickerUrls, err := t.gs.SearchStickers(ctx, "welcome", "en")
+		randomStickerUrl := stickerUrls[rand.Intn(len(stickerUrls))]
+
 		if err != nil {
-			return greetingMsg, fmt.Errorf("error sending greeting message: %s", err)
+			t.logger.Error("error fetching random gif: ", err)
+		}
+
+		// Send a sticker
+		if _, err := t.tsc.SendSticker(ctx, chatID, randomStickerUrl); err != nil {
+			t.logger.Error("error sending sticker: ", err)
 		}
 	}
 
 	// Handle members leaving
 	if data.Message.LeftChatMember != nil {
 
-		fullName := t.constructFullName(data.Message.LeftChatMember.FirstName,
+		// Construct fullname & username of the new member
+		fullName := utils.ConstructFullName(data.Message.LeftChatMember.FirstName,
 			data.Message.LeftChatMember.LastName, data.Message.LeftChatMember.Username)
 
 		farewellMsg := fmt.Sprintf("Goodbye, %s !", fullName)
 
-		_, err := t.tsc.SendMessage(ctx, chatID, farewellMsg)
-		if err != nil {
+		// Send a farewell message
+		if _, err := t.tsc.SendMessage(ctx, chatID, farewellMsg); err != nil {
+			t.logger.Error("error sending farewell message: ", err)
 			return farewellMsg, fmt.Errorf("error sending farewell message: %s", err)
 		}
 	}
+
 	return "", nil
 }
 
-// func (t TelegramService) SendPhoto(ctx *gin.Context, photo string) (string, error) {
-// 	_, err := bot.TgBot.SendMessage(req.ChatID, req.Message, nil)
-// }
-
-// func (t TelegramService) SendUpdates(ctx *gin.Context, chatID int64, message string) (string, error) {
-// _, err := bot.TgBot.SendMessage(chatID, message, nil)
-// if err != nil {
-// 	return "", fmt.Errorf("error sending message: %s", err)
-// }
-// return "Message sent", nil
-// }
-
-func (t TelegramService) constructFullName(firstName, lastName, userName string) string {
-
-	name := ""
-	if !utils.IsEmpty(firstName) {
-		name = firstName
-	}
-	if !utils.IsEmpty(lastName) {
-		name += " " + lastName
-	}
-	if !utils.IsEmpty(userName) {
-		name += " (@" + userName + ")"
-	}
-	return name
+// groupDescription returns the description of the group
+func groupDescription() string {
+	return "This is a simple telegram bot"
 }

@@ -45,9 +45,14 @@ func (g TelegramServiceCall) SetWebhook(ctx *gin.Context) (dto.WebHookResponse, 
 func (g TelegramServiceCall) SendMessage(ctx *gin.Context, chatID int64, text string) (dto.TgResponse, error) {
 
 	var response dto.TgResponse
+	body := dto.SendMessageRequest{
+		ChatID: chatID,
+		Text:   text,
+	}
+
 	endpoint := fmt.Sprintf("%s%s", g.url, fmt.Sprintf(endpoints.TG_SEND_MESSAGE_URL, g.apiKey))
 
-	byteResponse, err := g.sc.Post(ctx, endpoint, nil, nil)
+	byteResponse, err := g.sc.Post(ctx, endpoint, body, nil)
 	if err != nil {
 		return response, err
 	}
@@ -61,9 +66,14 @@ func (g TelegramServiceCall) SendMessage(ctx *gin.Context, chatID int64, text st
 func (g TelegramServiceCall) SendSticker(ctx *gin.Context, chatID int64, mediaURL string) (dto.TgResponse, error) {
 
 	var response dto.TgResponse
+	body := dto.SendStickerRequest{
+		ChatID:  chatID,
+		Sticker: mediaURL,
+	}
+
 	endpoint := fmt.Sprintf("%s%s", g.url, fmt.Sprintf(endpoints.TG_SEND_STICKER_URL, g.apiKey))
 
-	byteResponse, err := g.sc.Post(ctx, endpoint, nil, nil)
+	byteResponse, err := g.sc.Post(ctx, endpoint, body, nil)
 	if err != nil {
 		return response, err
 	}

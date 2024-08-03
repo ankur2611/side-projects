@@ -17,3 +17,18 @@ func ExecuteMethods(obj interface{}) {
 func IsEmpty(s string) bool {
 	return len(strings.TrimSpace(s)) == 0
 }
+
+func ConstructFullName(firstName, lastName, userName string) string {
+
+	name := ""
+	if !IsEmpty(firstName) {
+		name = firstName
+	}
+	if !IsEmpty(lastName) {
+		name += " " + lastName
+	}
+	if !IsEmpty(userName) {
+		name += " (@" + userName + ")"
+	}
+	return name
+}

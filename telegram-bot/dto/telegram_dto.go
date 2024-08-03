@@ -11,6 +11,16 @@ type WebHookResponse struct {
 	Description string `json:"description"`
 }
 
+type SendMessageRequest struct {
+	ChatID int64  `json:"chat_id"`
+	Text   string `json:"text"`
+}
+
+type SendStickerRequest struct {
+	ChatID  int64  `json:"chat_id"`
+	Sticker string `json:"sticker"`
+}
+
 type TgResponse struct {
 	Ok          bool    `json:"ok"`
 	Result      *Result `json:"result"`
