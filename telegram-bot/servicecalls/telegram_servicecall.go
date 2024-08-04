@@ -173,3 +173,38 @@ func (g TelegramServiceCall) RestrictUser(ctx *gin.Context, chatID, userID int64
 	}
 	return response, nil
 }
+
+// https://core.telegram.org/bots/api#sendinvoice
+func (g TelegramServiceCall) SendInvoice(ctx *gin.Context, chatID int64, invoice dto.Invoice) (dto.TgResponse, error) {
+
+	var response dto.TgResponse
+
+	endpoint := fmt.Sprintf("%s%s", g.url, fmt.Sprintf(endpoints.TG_SEND_INVOICE, g.apiKey))
+
+	byteResponse, err := g.sc.Post(ctx, endpoint, invoice, nil)
+	if err != nil {
+		return response, err
+	}
+
+	if err := json.Unmarshal(byteResponse, &response); err != nil {
+		return response, err
+	}
+	return response, nil
+}
+
+// https://core.telegram.org/bots/api#answerprecheckoutquery
+func (g TelegramServiceCall) SendPreCheckoutQuery(ctx *gin.Context, body dto.SendPreCheckoutQueryRequest) (dto.TgResponse, error) {
+	var response dto.TgResponse
+
+	endpoint := fmt.Sprintf("%s%s", g.url, fmt.Sprintf(endpoints.TG_SEND_INVOICE, g.apiKey))
+
+	byteResponse, err := g.sc.Post(ctx, endpoint, body, nil)
+	if err != nil {
+		return response, err
+	}
+
+	if err := json.Unmarshal(byteResponse, &response); err != nil {
+		return response, err
+	}
+	return response, nil
+}

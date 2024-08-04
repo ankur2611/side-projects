@@ -13,4 +13,6 @@ type ITelegramServiceCall interface {
 	BanUser(ctx *gin.Context, chatID, userID int64) (dto.TgResponse, error)
 	UnBanUser(ctx *gin.Context, chatID, userID int64) (dto.TgResponse, error)
 	RestrictUser(ctx *gin.Context, chatID, userID int64) (dto.TgResponse, error)
+	SendInvoice(ctx *gin.Context, chatID int64, invoice dto.Invoice) (dto.TgResponse, error)
+	SendPreCheckoutQuery(ctx *gin.Context, data dto.SendPreCheckoutQueryRequest) (dto.TgResponse, error)
 }

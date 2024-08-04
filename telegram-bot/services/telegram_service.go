@@ -13,6 +13,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 // TelegramService struct defines the TelegramService struct type with tsc and logger fields
@@ -49,6 +50,7 @@ func (t TelegramService) Commands(ctx *gin.Context, data dto.CommandsRequest) (s
 	chatID := data.Message.Chat.ID
 	userID := data.Message.From.ID
 	message := data.Message.Text
+	preCheckoutQuery := data.PreCheckoutQuery
 	t.logger.Debug("Data Received from TG Server, chatID: ", data.Message.Chat.ID, " message: ", data.Message.Text)
 
 	switch message {
@@ -60,6 +62,27 @@ func (t TelegramService) Commands(ctx *gin.Context, data dto.CommandsRequest) (s
 	case "/restrict":
 		if _, err := t.tsc.RestrictUser(ctx, chatID, userID); err != nil {
 			t.logger.Error("error restricting user: ", err)
+		}
+	case "/invoice":
+		invoice := dto.Invoice{
+			ChatID:        chatID,
+			Title:         "Sample Invoice",
+			Description:   "This is a sample invoice",
+			Payload:       "sample_invoice",
+			ProviderToken: viper.GetString("STRIPE_TOKEN"),
+			Currency:      "JPY",
+			Prices: []struct {
+				Label  string `json:"label"`
+				Amount int    `json:"amount"`
+			}{
+				{
+					Label:  "Sample Item",
+					Amount: 150,
+				},
+			},
+		}
+		if _, err := t.tsc.SendInvoice(ctx, chatID, invoice); err != nil {
+			t.logger.Error("error sending invoice: ", err)
 		}
 	}
 
@@ -114,6 +137,16 @@ func (t TelegramService) Commands(ctx *gin.Context, data dto.CommandsRequest) (s
 		}
 	}
 
+	if preCheckoutQuery != (dto.PreCheckoutQuery{}) {
+
+		checkoutData := dto.SendPreCheckoutQueryRequest{
+			PreCheckoutQueryID: preCheckoutQuery.ID,
+			Ok:                 true,
+		}
+		if _, err := t.tsc.SendPreCheckoutQuery(ctx, checkoutData); err != nil {
+			t.logger.Error("error sending precheckout query: ", err)
+		}
+	}
 	return "", nil
 }
 

@@ -1,8 +1,26 @@
 package dto
 
 type CommandsRequest struct {
-	UpdateID int     `json:"update_id"`
-	Message  Message `json:"message"`
+	UpdateID         int              `json:"update_id"`
+	Message          Message          `json:"message"`
+	PreCheckoutQuery PreCheckoutQuery `json:"pre_checkout_query"`
+}
+
+type PreCheckoutQuery struct {
+	ID               string    `json:"id"`
+	From             User      `json:"from"`
+	Currency         string    `json:"currency"`
+	TotalAmount      int       `json:"total_amount"`
+	InvoicePayload   string    `json:"invoice_payload"`
+	ShippingOptionID string    `json:"shipping_option_id"`
+	OrderInfo        OrderInfo `json:"order_info"`
+}
+
+type OrderInfo struct {
+	Name        string `json:"name"`
+	PhoneNumber string `json:"phone_number"`
+	Email       string `json:"email"`
+	// ShippingAddress Address `json:"shipping_address"` // Optional
 }
 
 type WebHookResponse struct {
@@ -54,6 +72,25 @@ type Permissions struct {
 	CanSendDocuments      bool `json:"can_send_documents"`
 	CanSendPhotos         bool `json:"can_send_photos"`
 	CanSendVideos         bool `json:"can_send_videos"`
+}
+
+type Invoice struct {
+	ChatID        int64  `json:"chat_id"`
+	Title         string `json:"title"`
+	Description   string `json:"description"`
+	Payload       string `json:"payload"`
+	ProviderToken string `json:"provider_token"`
+	Currency      string `json:"currency"`
+	Prices        []struct {
+		Label  string `json:"label"`
+		Amount int    `json:"amount"`
+	} `json:"prices"`
+}
+
+type SendPreCheckoutQueryRequest struct {
+	PreCheckoutQueryID string `json:"pre_checkout_query_id"`
+	Ok                 bool   `json:"ok"`
+	ErrorMessage       string `json:"error_message"`
 }
 type TgResponse struct {
 	Ok          bool   `json:"ok"`
