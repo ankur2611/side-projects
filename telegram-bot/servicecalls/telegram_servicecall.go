@@ -28,13 +28,13 @@ func NewTelegramServiceCall(ctx *gin.Context) TelegramServiceCall {
 }
 
 // https://core.telegram.org/bots/api#setwebhook
-func (g TelegramServiceCall) SetWebhook(ctx *gin.Context) (dto.WebHookResponse, error) {
+func (t TelegramServiceCall) SetWebhook(ctx *gin.Context) (dto.WebHookResponse, error) {
 
 	var response dto.WebHookResponse
-	endpoint := fmt.Sprintf("%s%s", g.url, fmt.Sprintf(endpoints.TG_WEBHOOK_URL, g.apiKey,
+	endpoint := fmt.Sprintf("%s%s", t.url, fmt.Sprintf(endpoints.TG_WEBHOOK_URL, t.apiKey,
 		viper.GetString("MY_WEBHOOK_URL")))
 
-	byteResponse, err := g.sc.Post(ctx, endpoint, nil, nil)
+	byteResponse, err := t.sc.Post(ctx, endpoint, nil, nil)
 	if err != nil {
 		return response, err
 	}
@@ -46,7 +46,7 @@ func (g TelegramServiceCall) SetWebhook(ctx *gin.Context) (dto.WebHookResponse, 
 }
 
 // https://core.telegram.org/bots/api#sendmessage
-func (g TelegramServiceCall) SendMessage(ctx *gin.Context, chatID int64, text string) (dto.TgResponse, error) {
+func (t TelegramServiceCall) SendMessage(ctx *gin.Context, chatID int64, text string) (dto.TgResponse, error) {
 
 	var response dto.TgResponse
 	body := dto.SendMessageRequest{
@@ -54,9 +54,9 @@ func (g TelegramServiceCall) SendMessage(ctx *gin.Context, chatID int64, text st
 		Text:   text,
 	}
 
-	endpoint := fmt.Sprintf("%s%s", g.url, fmt.Sprintf(endpoints.TG_SEND_MESSAGE_URL, g.apiKey))
+	endpoint := fmt.Sprintf("%s%s", t.url, fmt.Sprintf(endpoints.TG_SEND_MESSAGE_URL, t.apiKey))
 
-	byteResponse, err := g.sc.Post(ctx, endpoint, body, nil)
+	byteResponse, err := t.sc.Post(ctx, endpoint, body, nil)
 	if err != nil {
 		return response, err
 	}
@@ -68,7 +68,7 @@ func (g TelegramServiceCall) SendMessage(ctx *gin.Context, chatID int64, text st
 }
 
 // https://core.telegram.org/bots/api#sendsticker
-func (g TelegramServiceCall) SendSticker(ctx *gin.Context, chatID int64, mediaURL string) (dto.TgResponse, error) {
+func (t TelegramServiceCall) SendSticker(ctx *gin.Context, chatID int64, mediaURL string) (dto.TgResponse, error) {
 
 	var response dto.TgResponse
 	body := dto.SendStickerRequest{
@@ -76,9 +76,9 @@ func (g TelegramServiceCall) SendSticker(ctx *gin.Context, chatID int64, mediaUR
 		Sticker: mediaURL,
 	}
 
-	endpoint := fmt.Sprintf("%s%s", g.url, fmt.Sprintf(endpoints.TG_SEND_STICKER_URL, g.apiKey))
+	endpoint := fmt.Sprintf("%s%s", t.url, fmt.Sprintf(endpoints.TG_SEND_STICKER_URL, t.apiKey))
 
-	byteResponse, err := g.sc.Post(ctx, endpoint, body, nil)
+	byteResponse, err := t.sc.Post(ctx, endpoint, body, nil)
 	if err != nil {
 		return response, err
 	}
@@ -90,7 +90,7 @@ func (g TelegramServiceCall) SendSticker(ctx *gin.Context, chatID int64, mediaUR
 }
 
 // https://core.telegram.org/bots/api#banchatmember
-func (g TelegramServiceCall) BanUser(ctx *gin.Context, chatID, userID int64) (dto.TgResponse, error) {
+func (t TelegramServiceCall) BanUser(ctx *gin.Context, chatID, userID int64) (dto.TgResponse, error) {
 
 	var response dto.TgResponse
 
@@ -101,9 +101,9 @@ func (g TelegramServiceCall) BanUser(ctx *gin.Context, chatID, userID int64) (dt
 		RevokeMessages: true,
 	}
 
-	endpoint := fmt.Sprintf("%s%s", g.url, fmt.Sprintf(endpoints.TG_BAN_USER, g.apiKey))
+	endpoint := fmt.Sprintf("%s%s", t.url, fmt.Sprintf(endpoints.TG_BAN_USER, t.apiKey))
 
-	byteResponse, err := g.sc.Post(ctx, endpoint, body, nil)
+	byteResponse, err := t.sc.Post(ctx, endpoint, body, nil)
 	if err != nil {
 		return response, err
 	}
@@ -115,7 +115,7 @@ func (g TelegramServiceCall) BanUser(ctx *gin.Context, chatID, userID int64) (dt
 }
 
 // https://core.telegram.org/bots/api#unbanchatmember
-func (g TelegramServiceCall) UnBanUser(ctx *gin.Context, chatID, userID int64) (dto.TgResponse, error) {
+func (t TelegramServiceCall) UnBanUser(ctx *gin.Context, chatID, userID int64) (dto.TgResponse, error) {
 
 	var response dto.TgResponse
 	body := dto.UnbanUserRequest{
@@ -124,9 +124,9 @@ func (g TelegramServiceCall) UnBanUser(ctx *gin.Context, chatID, userID int64) (
 		OnlyIfBanned: true,
 	}
 
-	endpoint := fmt.Sprintf("%s%s", g.url, fmt.Sprintf(endpoints.TG_BAN_USER, g.apiKey))
+	endpoint := fmt.Sprintf("%s%s", t.url, fmt.Sprintf(endpoints.TG_BAN_USER, t.apiKey))
 
-	byteResponse, err := g.sc.Post(ctx, endpoint, body, nil)
+	byteResponse, err := t.sc.Post(ctx, endpoint, body, nil)
 	if err != nil {
 		return response, err
 	}
@@ -138,7 +138,7 @@ func (g TelegramServiceCall) UnBanUser(ctx *gin.Context, chatID, userID int64) (
 }
 
 // https://core.telegram.org/bots/api#restrictchatmember
-func (g TelegramServiceCall) RestrictUser(ctx *gin.Context, chatID, userID int64) (dto.TgResponse, error) {
+func (t TelegramServiceCall) RestrictUser(ctx *gin.Context, chatID, userID int64) (dto.TgResponse, error) {
 
 	var response dto.TgResponse
 	body := dto.RestrictUser{
@@ -161,9 +161,9 @@ func (g TelegramServiceCall) RestrictUser(ctx *gin.Context, chatID, userID int64
 		UntilDate:                     utils.GetUnixTime(time.Now().AddDate(0, 0, 30)),
 	}
 
-	endpoint := fmt.Sprintf("%s%s", g.url, fmt.Sprintf(endpoints.TG_RESTRICT_USER, g.apiKey))
+	endpoint := fmt.Sprintf("%s%s", t.url, fmt.Sprintf(endpoints.TG_RESTRICT_USER, t.apiKey))
 
-	byteResponse, err := g.sc.Post(ctx, endpoint, body, nil)
+	byteResponse, err := t.sc.Post(ctx, endpoint, body, nil)
 	if err != nil {
 		return response, err
 	}
@@ -175,13 +175,13 @@ func (g TelegramServiceCall) RestrictUser(ctx *gin.Context, chatID, userID int64
 }
 
 // https://core.telegram.org/bots/api#sendinvoice
-func (g TelegramServiceCall) SendInvoice(ctx *gin.Context, chatID int64, invoice dto.Invoice) (dto.TgResponse, error) {
+func (t TelegramServiceCall) SendInvoice(ctx *gin.Context, chatID int64, invoice dto.Invoice) (dto.TgResponse, error) {
 
 	var response dto.TgResponse
 
-	endpoint := fmt.Sprintf("%s%s", g.url, fmt.Sprintf(endpoints.TG_SEND_INVOICE, g.apiKey))
+	endpoint := fmt.Sprintf("%s%s", t.url, fmt.Sprintf(endpoints.TG_SEND_INVOICE, t.apiKey))
 
-	byteResponse, err := g.sc.Post(ctx, endpoint, invoice, nil)
+	byteResponse, err := t.sc.Post(ctx, endpoint, invoice, nil)
 	if err != nil {
 		return response, err
 	}
@@ -193,12 +193,12 @@ func (g TelegramServiceCall) SendInvoice(ctx *gin.Context, chatID int64, invoice
 }
 
 // https://core.telegram.org/bots/api#answerprecheckoutquery
-func (g TelegramServiceCall) SendPreCheckoutQuery(ctx *gin.Context, body dto.SendPreCheckoutQueryRequest) (dto.TgResponse, error) {
+func (t TelegramServiceCall) SendPreCheckoutQuery(ctx *gin.Context, body dto.SendPreCheckoutQueryRequest) (dto.TgResponse, error) {
 	var response dto.TgResponse
 
-	endpoint := fmt.Sprintf("%s%s", g.url, fmt.Sprintf(endpoints.TG_SEND_INVOICE, g.apiKey))
+	endpoint := fmt.Sprintf("%s%s", t.url, fmt.Sprintf(endpoints.TG_SEND_INVOICE, t.apiKey))
 
-	byteResponse, err := g.sc.Post(ctx, endpoint, body, nil)
+	byteResponse, err := t.sc.Post(ctx, endpoint, body, nil)
 	if err != nil {
 		return response, err
 	}
